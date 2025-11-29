@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Data (keep processed small stuff if you want)
+data/
+logs/
+*.pkl
+*.csv
+*.xlsx
+# IDEs
+.vscode/
+.idea/
