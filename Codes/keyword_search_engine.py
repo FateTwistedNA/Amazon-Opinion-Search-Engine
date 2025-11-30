@@ -41,10 +41,9 @@ class KeywordSearchEngine:
         return index
 
     def _parse_query(self, query: str):
-        """
-        Parse 'aspect1 aspect2:opinion1 opinion2' into (aspect_terms, opinion_terms)
-        with simple normalization (lowercase + stemming + stopword filtering).
-        """
+
+        # Normalize (lowercase + stemming + stopword filtering) and parse aspect1 aspect2:opinion1 opinion2 into aspect_terms, opinion_terms
+
         if ":" in query:
             aspect_part, opinion_part = query.split(":", 1)
         else:
@@ -68,10 +67,10 @@ class KeywordSearchEngine:
     # ------------------------------------------------------------------ #
 
     def retrieve_aspect_only(self, query: str):
-        """
-        Test 1 – Aspect-only Boolean retrieval.
-        Return docs containing at least one aspect term.
-        """
+
+        # Test 1 – Aspect-only Boolean retrieval.
+        # Return docs containing at least one aspect term.
+
         aspect_terms, _ = self._parse_query(query)
 
         docs = set()
@@ -80,12 +79,14 @@ class KeywordSearchEngine:
         return docs
 
     def retrieve_aspect_and_opinion(self, query: str):
-        """
-        Test 2 – Boolean Aspect AND Opinion match.
-        Requires: (≥1 aspect term) AND (≥1 opinion term).
-        """
-        aspect_terms, opinion_terms = self._parse_query(query)
 
+        # Test 2 – Boolean Aspect AND Opinion match.
+        # (>=1 aspect term) AND (>=1 opinion term).
+
+        aspect_terms, opinion_terms = self._parse_query(query)
+        # sanity-check query parsing
+        # print("DEBUG T2:", query, "->", aspect_terms, opinion_terms)
+        
         # docs containing any aspect term
         aspect_docs = set()
         for term in aspect_terms:
@@ -99,10 +100,10 @@ class KeywordSearchEngine:
         return aspect_docs & opinion_docs
 
     def retrieve_aspect_or_opinion(self, query: str):
-        """
-        Test 3 – Aspect OR Opinion match.
-        Requires: at least one aspect or one opinion term.
-        """
+
+        # Test 3 – Aspect OR Opinion match.
+        # At least one aspect or one opinion term.
+
         aspect_terms, opinion_terms = self._parse_query(query)
 
         docs = set()
