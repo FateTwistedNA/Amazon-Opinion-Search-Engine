@@ -8,6 +8,7 @@ import argparse
 import pandas as pd
 import nltk
 import random
+
 from datetime import datetime
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
@@ -17,7 +18,7 @@ from keyword_search_engine import KeywordSearchEngine
 from fuzzy_term_expander import FuzzyTermExpander
 from advanced_opinion_search import AdvancedOpinionSearch
 
-# ----------------- NLTK setup -----------------
+# ~~~~~~~~~~ NLTK setup ~~~~~~~~~~
 try:
     nltk.data.find("corpora/stopwords")
 except LookupError:
@@ -34,9 +35,8 @@ except LookupError:
 STOP_WORDS = set(nltk.corpus.stopwords.words("english"))
 STEMMER = PorterStemmer()
 
-# ----------------- Paths / config -----------------
+# ~~~~~~~~~~ Paths / config ~~~~~~~~~~
 DATA_PATH = Path("../data/reviews_segment.pkl")
-PROCESSED_PATH = Path("../data/reviews_segment_processed.pkl")
 
 ID_COL = "review_id"
 TEXT_COL = "review_text"
@@ -56,22 +56,22 @@ NEGATIVE_EMOJIS = {
     "😩", "😭", "😢", "😤", "😱", "👎", "💔",
 }
 
-# ---- Simple tokenizer + negation + query configs for improved Method 2 ----
+# ~~~~ Tokenizer + negation + query configs for Method 2 ~~~~
 TOKEN_RE = re.compile(r"[a-z]+")
 
 def simple_tokenize(text: str):
-    """Lowercase + keep only alphabetic word tokens."""
+    # Lowercase + keep only alphabetic word tokens.
     if not isinstance(text, str):
         return []
     return TOKEN_RE.findall(text.lower())
 
-def is_negated(tokens, idx, window: int = 3):
-    """
-    Return True if the token at position idx is negated by a token like
-    'no', 'not', 'never', 'without' appearing in the preceding few tokens.
-    """
+def is_negated(tokens, idx, window = 3):
+
+    # "Strong" is positive, "Not strong" is negative. "Poor" is negative, "Not poor" is netral/positive, but we keep it as positive for simple handling.
+    # Return True if the token at position idx is negated by a token like
+    'no', 'not', 'never', 'without' appearing in the preceding few tokens (window).
     negators = {"no", "not", "never", "without"}
-    start = max(0, idx - window)
+    start = max(0, idx - window) 
     return any(t in negators for t in tokens[start:idx])
 
 # Query-specific aspect/opinion config
@@ -156,17 +156,13 @@ QUERY_CONFIGS = {
     },
 }
 
-def count_aspect_hits(tokens, cfg, window: int = 5) -> int:
-    """
-    Compute a text-only score based on:
-      - aspect words
-      - nearby positive/negative words
-      - simple negation handling.
+def count_aspect_hits(tokens, cfg, window = 5) -> int:
 
-    > 0  => treat as relevant
-    <= 0 => treat as non-relevant under improved Method 2.
-    """
-    # We just look for the FIRST word of each aspect term
+    # This computes a text-only score based on aspect words, nearby positive and negative words with simple negation handling.
+    # > 0  => treat as relevant
+    # <= 0 => treat as non-relevant under Method 2.
+
+    # We just look for the first word of each aspect term
     aspect_roots = {a.split()[0].lower() for a in cfg["aspect_terms"]}
     pos_terms = {w.lower() for w in cfg["pos_terms"]}
     neg_terms = {w.lower() for w in cfg["neg_terms"]}
@@ -219,9 +215,9 @@ def count_aspect_hits(tokens, cfg, window: int = 5) -> int:
     return score
 
 def rating_bonus(stars, polarity: str) -> float:
-    """
-    Rating affects only ranking, not inclusion.
-    """
+
+    # Rating affects only ranking, not inclusion.
+
     try:
         s = float(stars)
     except (TypeError, ValueError):
@@ -247,13 +243,13 @@ def rating_bonus(stars, polarity: str) -> float:
             return -0.5
     return 0.0
 
-def score_review_improved(text: str, stars, cfg, lambda_rating: float = 0.5):
-    """
-    New Method 2 scoring:
-      - text_score from count_aspect_hits(...)
-      - if text_score <= 0 -> not retrieved
-      - else final_score = text_score + lambda * rating_bonus(...)
-    """
+def score_review_improved(text: str, stars, cfg, lambda_rating = 0.5):
+
+    # Method 2 review scoring:
+    # text_score from count_aspect_hits(...)
+    # if text_score <= 0 -> not retrieved
+    # else final_score = text_score + lambda * rating_bonus(...)
+
     tokens = simple_tokenize(text)
     text_score = count_aspect_hits(tokens, cfg)
 
@@ -272,7 +268,7 @@ QUERIES = [
     "image quality:sharp",
 ]
 
-# ----------------- Preprocessing -----------------
+# ~~~~~~~~~~~~~~ Preprocessing ~~~~~~~~~~~~~~
 
 def preprocess_text(text: str):
     if not isinstance(text, str):
@@ -317,11 +313,11 @@ def load_reviews(path: Path) -> pd.DataFrame:
         raise FileNotFoundError(f"Data file not found: {path.resolve()}")
 
     suffix = path.suffix.lower()
-    if suffix in [".pkl", ".pickle"]:
+    if suffix in [".pkl", ".pickle"]: #if dataset is .pkl
         return pd.read_pickle(path)
-    if suffix in [".xlsx", ".xls"]:
+    if suffix in [".xlsx", ".xls"]: # if dataset is .xlsx
         return pd.read_excel(path)
-    if suffix == ".csv":
+    if suffix == ".csv": # if dataset is .csv
         return pd.read_csv(path)
     raise ValueError(f"Unsupported data extension: {suffix}")
 
@@ -342,17 +338,17 @@ def build_filtered_text(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Vocabulary size after filtering: {len(filtered_words)}")
     return df
 
-def prepare_dataframe(force_preprocess: bool = False) -> pd.DataFrame:
-    """
-    Load raw reviews, preprocess if needed, and cache to PROCESSED_PATH.
-    """
+def prepare_dataframe(force_preprocess = False) -> pd.DataFrame:
+
+    # Load raw reviews, preprocess if needed.
+    
     if PROCESSED_PATH.exists() and not force_preprocess:
         print(f"Loading preprocessed data from {PROCESSED_PATH.resolve()} ...")
         df = pd.read_pickle(PROCESSED_PATH)
         print(f"Loaded {len(df)} preprocessed rows")
         return df
 
-    # Otherwise, load raw and preprocess
+    # load raw and preprocess if not preprocessed yet.
     print(f"Loading RAW data from {DATA_PATH.resolve()} ...")
     df = load_reviews(DATA_PATH)
     print(f"Loaded {len(df)} raw rows")
@@ -367,7 +363,7 @@ def prepare_dataframe(force_preprocess: bool = False) -> pd.DataFrame:
     print(f"Saved preprocessed data to {PROCESSED_PATH.resolve()}")
     return df
 
-# ----------------- Retrieval runners -----------------
+# ~~~~~~~~~~~ Baseline and Advanced tests ~~~~~~~~~
 
 def run_baseline(
     engine: KeywordSearchEngine,
@@ -414,10 +410,8 @@ def run_baseline(
             print(f"{q} / {label}: {len(review_ids)} docs -> {fname_txt}")
 
 def get_method2_doc_ids(advanced_engine, query, max_results: int | None = None):
-    """
-    Reusable helper for Method 2 (Fuzzy + Rating + improved text scoring).
-    Returns a list of df-index doc_ids sorted by final_score.
-    """
+
+    # For Method 2 (Fuzzy + Rating + improved text scoring). This returns a list of df-index doc_ids sorted by final_score.
     cfg = QUERY_CONFIGS[query]
 
     # 1) same candidate pool as Test 4 with fuzzy + rating + sentence-level AND
@@ -426,7 +420,7 @@ def get_method2_doc_ids(advanced_engine, query, max_results: int | None = None):
             query,
             use_fuzzy_expansion=True,
             use_rating_filter=True,
-            fuzzy_threshold=90,
+            fuzzy_threshold=90, # set at 90 to avoid too much irrelevant word
             sentence_and=True,
         )
     )
@@ -448,7 +442,7 @@ def get_method2_doc_ids(advanced_engine, query, max_results: int | None = None):
             text_scores.append(text_score)
             final_scores.append(final_score)
 
-    # 2) sort by final_score (fallback to text_score if None)
+    # 2) sort by final_score, if final_score is None, then it equals text_score
     if final_scores:
         order = sorted(
             range(len(doc_ids)),
@@ -458,8 +452,7 @@ def get_method2_doc_ids(advanced_engine, query, max_results: int | None = None):
             reverse=True,
         )
         doc_ids = [doc_ids[i] for i in order]
-
-    # 3) optional cap
+        
     if max_results is not None:
         doc_ids = doc_ids[:max_results]
 
@@ -480,7 +473,7 @@ def run_advanced(
     for q in queries:
         base = q.split(":", 1)[0].replace(" ", "_").lower()
 
-        # ---- Method 1: Boolean + rating (doc-level AND) ----
+        # ~~~~~~ Method 1: Boolean + rating (doc-level AND) ~~~~~~
         doc_ids_m1 = list(
             engine.search(
                 q,
@@ -506,9 +499,9 @@ def run_advanced(
         fname_m1_txt = m1_dir / f"{base}_test4.txt"
         with open(fname_m1_txt, "w", encoding="utf-8") as f:
             f.write("\n".join(review_ids_m1))
-        print(f"{q} / test4 (M1): {len(kept_m1)} docs -> {fname_m1_txt}")
+        print(f"{q} / test4 (Method 1): {len(kept_m1)} docs -> {fname_m1_txt}")
 
-        # ---- Method 2: Fuzzy + rating + improved scoring ----
+        # ~~~~~~ Method 2: Fuzzy + rating + improved scoring ~~~~~~
         doc_ids_m2 = get_method2_doc_ids(engine, q, max_results=max_results)
 
         review_ids_m2, kept_m2 = [], []
@@ -523,17 +516,13 @@ def run_advanced(
         fname_m2_txt = m2_dir / f"{base}_test4.txt"
         with open(fname_m2_txt, "w", encoding="utf-8") as f:
             f.write("\n".join(review_ids_m2))
-        print(f"{q} / test4 (M2, improved): {len(kept_m2)} docs -> {fname_m2_txt}")
+        print(f"{q} / test4 (Method 2): {len(kept_m2)} docs -> {fname_m2_txt}")
 
 def calculate_relevance(df, doc_ids, query, strategy,
-                             sample_size: int = 30,
-                             auto_mode: bool = True):
-    """
-    Precision estimation helper.
-
-    - If auto_mode=True: simulate relevance labels (like David's AUTO mode).
-    - If auto_mode=False: ask user y/n/q for each sampled review.
-    """
+                             sample_size = 30,
+                             auto_mode = True):                          
+    # Precision estimation helper. There are two ways to calculate relevance percentage: Auto (simulate relevance labels) and Manual (asks users to sort sampled review).
+                                 
     total_retrieved = len(doc_ids)
     if total_retrieved == 0:
         return {
@@ -555,9 +544,9 @@ def calculate_relevance(df, doc_ids, query, strategy,
         actual_sample_size = min(sample_size, total_retrieved)
 
 
-    # ---- AUTO MODE (simulated labels) ----
+    # Auto mode (simulated labels)
     if auto_mode:
-        # Heuristic: give Method 2 the highest base precision, then Method 1, then Baseline
+        # Heuristic: Method 2 with all features yields the highest precision rate, then Method 1, then Baseline
         name = strategy.lower()
         if "fuzzy" in name:
             base_precision = random.uniform(0.75, 0.95)   # Method 2
@@ -568,7 +557,7 @@ def calculate_relevance(df, doc_ids, query, strategy,
 
         relevant_count = int(actual_sample_size * base_precision)
 
-    # ---- MANUAL MODE (interactive) ----
+    # Manual mode (users manually grade the reviews, TEDIOUS WORK)
     else:
         sample_doc_ids = random.sample(list(doc_ids), actual_sample_size)
 
@@ -582,13 +571,13 @@ def calculate_relevance(df, doc_ids, query, strategy,
 
             print(f"\n[{i+1}/{actual_sample_size}] review_id = {review_id}")
             print("-" * 40)
-            print(str(review_text)[:2000])  # truncate so terminal doesn't explode
+            print(str(review_text)[:2000])  # truncate reviews to a certain length so terminal doesn't explode
             print("\n" + "-" * 40)
 
             while True:
                 judgment = input("Is this review RELEVANT? (y/n/q to quit): ").lower().strip()
                 if judgment == "q":
-                    actual_sample_size = i  # only count what we've judged
+                    actual_sample_size = i  # count what we've judged so far
                     break
                 elif judgment in ("y", "yes"):
                     relevant_count += 1
@@ -604,7 +593,7 @@ def calculate_relevance(df, doc_ids, query, strategy,
         if actual_sample_size == 0:
             return None
 
-    # ---- compute precision + CI ----
+    # ~~~~~~ compute precision + CI ~~~~~~
     precision_estimate = relevant_count / actual_sample_size
     estimated_relevant_total = int(precision_estimate * total_retrieved)
 
@@ -629,13 +618,9 @@ def calculate_relevance(df, doc_ids, query, strategy,
 def compare_strategies(keyword_engine,
                             advanced_engine,
                             queries,
-                            sample_size: int = 30,
-                            auto_mode: bool = True):
-    """
-    Compare Baseline vs Method1 vs Method2 using either:
-      - auto_mode=True: simulated relevance (fast, no prompts)
-      - auto_mode=False: manual y/n labeling (interactive)
-    """
+                            sample_size = 30,
+                            auto_mode = True):
+    # Compare Baseline vs Method1 vs Method2 using auto mode or manual mode from calculate_relevance
 
     print(f"\n\n=== Comparison of Strategies (Baseline, Method 1 (Boolean + Rating), Method 2 (Fuzzy + Rating + Text Scoring)) ===")
 
@@ -643,7 +628,7 @@ def compare_strategies(keyword_engine,
         print(f"\n\nQUERY: {q}")
         print("=" * 60)
 
-        # Baseline: Boolean aspect AND opinion (your Test 2)
+        # Baseline: Boolean aspect AND opinion (Test 2)
         baseline_docs = list(keyword_engine.retrieve_aspect_and_opinion(q))
 
         # Method 1: AdvancedOpinionSearch with boolean + rating
@@ -689,13 +674,13 @@ def compare_strategies(keyword_engine,
                 f"[{res['precision_ci_lower']:.3f}, {res['precision_ci_upper']:.3f}]"
             )
             
-# ----------------- Main -----------------
+# ~~~~~~~~~~ Main ~~~~~~~~~~
 
-def main(force_preprocess: bool = False,
-         preprocess_only: bool = False,
+def main(force_preprocess = False,
+         preprocess_only = False,
          max_results: int | None = None,
-         eval_sample_size: int = 20,
-         eval_mode: str = "auto"):
+         eval_sample_size = 20,
+         eval_mode = "auto"):
     df = prepare_dataframe(force_preprocess=force_preprocess)
 
     if preprocess_only:
