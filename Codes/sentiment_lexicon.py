@@ -1,11 +1,12 @@
 # sentiment_lexicon.py
 
 class SentimentLexicon:
-    """
-    Lightweight sentiment lexicon used to guess whether a query
-    opinion word is positive, negative, or neutral.
-    """
 
+    # Lightweight sentiment lexicon used to guess whether a query opinion word is positive, negative, or neutral.
+    # Note: These are among the most commonly used words in reviews. I googled up most of these words, and 
+    # added some more from reading through the massive dataset. 
+    # Some words carry a neutral meaning, "usable", "okay", but we label them as positive for easier handling logic.
+    
     def __init__(self):
         self.positive_words = set()
         self.negative_words = set()
@@ -14,7 +15,7 @@ class SentimentLexicon:
     def _load_words(self):
         print("Loading sentiment lexicon...")
 
-        # --- Positive opinion words ---
+        # ~~~~~ Positive opinion words ~~~~~
         self.positive_words = {
             'good', 'great', 'excellent', 'amazing', 'awesome', 'fantastic', 'wonderful',
             'perfect', 'outstanding', 'superb', 'brilliant', 'magnificent', 'marvelous',
@@ -31,7 +32,7 @@ class SentimentLexicon:
             'elegant', 'sleek', 'compact', 'portable', 'lightweight', 'durable', 'sturdy'
         }
 
-        # --- Negative opinion words ---
+        # ~~~~~ Negative opinion words ~~~~~
         self.negative_words = {
             'bad', 'terrible', 'awful', 'horrible', 'disgusting', 'pathetic', 'useless',
             'worthless', 'disappointing', 'frustrating', 'annoying', 'irritating', 'infuriating',
@@ -50,15 +51,15 @@ class SentimentLexicon:
             'complaints', 'criticisms', 'faults', 'drawbacks', 'disadvantages', 'downsides',
             'blur', 'blurry', 'fuzzy', 'dim', 'dark', 'faded', 'dull', 'muted', 'distorted'
         }
-    # Treat emoticon placeholders as sentiment words
+    # Treat emoticons as sentiment words
         self.positive_words.add("positive_opinion")
         self.negative_words.add("negative_opinion")
-    # ---- Public helpers -------------------------------------------------
+    # ~~~~~~ Public helpers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def polarity_of_word(self, word: str) -> int:
-        """
-        Return +1 if word is positive, -1 if negative, 0 if unknown.
-        """
+
+        # Return +1 if word is positive, -1 if negative, 0 if neutral/unknown.
+
         w = word.lower()
         if w in self.positive_words:
             return 1
@@ -67,12 +68,9 @@ class SentimentLexicon:
         return 0
 
     def classify_query_opinion(self, query: str) -> str:
-        """
-        Roughly decide if the *opinion* part of an aspect:opinion query
+
+        # Roughly decide if the opinion part of an aspect:opinion query
         is positive, negative, or neutral.
-        """
-        if ":" not in query:
-            return "neutral"
 
         _, opinion_part = query.split(":", 1)
         tokens = [t.strip().lower() for t in opinion_part.split() if t.strip()]
