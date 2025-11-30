@@ -22,6 +22,8 @@ class FuzzyTermExpander:
             if not isinstance(tokens, (list, tuple)):
                 continue
             for tok in tokens:
+                if len(tok) < 3:
+                    continue # we can ignore really short tokens
                 counts[tok] += 1
 
         self.vocab = [w for w, c in counts.items() if c >= self.min_freq]
