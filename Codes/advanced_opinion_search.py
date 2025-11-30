@@ -10,14 +10,8 @@ STOP_WORDS = set(nltk.corpus.stopwords.words("english"))
 
 
 class AdvancedOpinionSearch:
-    """
-    Advanced method used for Test 4.
 
-    Combines:
-      - Aspect/opinion Boolean matching
-      - Fuzzy query expansion
-      - Rating-based sentiment filter via SentimentLexicon
-    """
+    # For test 4, we combine aspect:opinion Boolean matching, fuzzy query expansion, and rating sentiments (in sentiment_lexicon.py)
 
     def __init__(self, df, lexicon, expander,
                  text_col="filtered_text",
@@ -63,15 +57,15 @@ class AdvancedOpinionSearch:
         return list(expanded)
 
     def _sentence_level_and(self, candidate_docs, aspect_terms, opinion_terms):
-        """
-        Keep only docs where there exists at least one sentence that
-        contains:
-            - at least one aspect term
-            - AND at least one opinion term
-        (all compared in stem-space, similar to _parse_query).
-        """
+
+        # Keep only docs where there exists at least one sentence that
+        # contains at least one aspect term AND at least one opinion term
+        # This is stricter than doc-level matching and helped me avoid cases
+        # like “sound is great, but the battery is awful” being returned for
+        # a battery-specific query.
+
         if not aspect_terms or not opinion_terms:
-            # If either side is empty, we can't do sentence-level AND
+            # If either side is empty, we can't do sentence level
             return candidate_docs
 
         aspect_set = set(aspect_terms)
@@ -111,14 +105,11 @@ class AdvancedOpinionSearch:
         return kept
 
     def _collect_docs(self, terms, require_all_terms: bool):
-        """
-        Collect documents for a set of terms.
 
-        - If require_all_terms == False:
-              OR logic: docs that contain at least one of the terms.
-        - If require_all_terms == True:
-              AND logic: docs must contain *all* the terms.
-        """
+        # This collect documents for a set of terms. If not require all terms, then 
+        # docs contains at least one of the terms (OR logic). If require all terms,
+        # then docs must contain all of the terms (AND logic).
+
         if not terms:
             return set()
 
@@ -144,10 +135,10 @@ class AdvancedOpinionSearch:
 
     
     def _apply_rating_filter(self, doc_ids, query_opinion):
-        """
-        Filter candidate documents based on star rating and the
-        query's sentiment (positive/negative/neutral).
-        """
+
+        # Filter candidate documents based on star rating and the
+        # query's sentiment (positive/negative/neutral).
+
         # neutral: keep everything
         if query_opinion == "neutral":
             return set(doc_ids)
@@ -176,13 +167,13 @@ class AdvancedOpinionSearch:
                fuzzy_threshold: int = 85,
                sentence_and: bool = True,
                require_all_terms: bool = False,):
-        """
-        Test 4 retrieval:
-          - Require aspect AND opinion match (like Test 2)
-          - Optionally expand terms with fuzzy matching
-          - Optionally require aspect & opinion in the same sentence
-          - Optionally filter docs by rating polarity vs query polarity
-        """
+                   
+        # Test 4 retrieval:
+        # Require aspect AND opinion match (like Test 2)
+        # expand terms with fuzzy matching
+        # require aspect & opinion in the same sentence
+        # filter docs by rating polarity vs query polarity (both Method 1 and 2)
+    
         # 1) Parse query into stemmed aspect / opinion terms
         aspect_terms, opinion_terms = self._parse_query(query)
 
