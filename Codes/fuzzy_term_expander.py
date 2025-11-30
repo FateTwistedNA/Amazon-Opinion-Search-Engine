@@ -5,10 +5,9 @@ from fuzzywuzzy import process, fuzz
 
 
 class FuzzyTermExpander:
-    """
-    Builds a vocabulary of frequent tokens and supports fuzzy expansion
-    of query terms using fuzzywuzzy.
-    """
+
+    # Build a vocabulary of frequent tokens and supports fuzzy expansion
+    # of query terms using fuzzywuzzy. REALLY GREAT IDEA
 
     def __init__(self, df, text_col="filtered_text", min_freq=15):
         self.df = df
@@ -28,10 +27,11 @@ class FuzzyTermExpander:
         self.vocab = [w for w, c in counts.items() if c >= self.min_freq]
         print(f"FuzzyTermExpander vocab size (freq >= {self.min_freq}): {len(self.vocab)}")
 
-    def expand(self, term: str, threshold: int = 80, limit: int = 5):
-        """
-        Return a list of similar tokens in the vocabulary.
-        """
+    def expand(self, term: str, threshold = 80, limit = 5): 
+
+        # Return a list of similar tokens in the vocabulary. I played around with different cutoffs and 15 seemed to remove most typos
+        # without killing too many opinion words.
+        
         if not self.vocab:
             return []
 
