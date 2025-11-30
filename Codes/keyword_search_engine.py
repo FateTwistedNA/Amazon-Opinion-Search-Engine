@@ -9,14 +9,11 @@ STOP_WORDS = set(nltk.corpus.stopwords.words("english"))
 
 
 class KeywordSearchEngine:
-    """
-    Baseline keyword-based Boolean search over df['filtered_text'].
 
-    Supports:
-      - Test 1: aspect-only retrieval
-      - Test 2: aspect AND opinion
-      - Test 3: aspect OR opinion
-    """
+    # Baseline keyword-based Boolean search over filtered_text.
+    # Test 1: aspect-only retrieval
+    # Test 2: aspect AND opinion
+    # Test 3: aspect OR opinion
 
     def __init__(self, df, lexicon, text_col="filtered_text", rating_col="customer_review_rating"):
         self.df = df
@@ -24,8 +21,6 @@ class KeywordSearchEngine:
         self.text_col = text_col
         self.rating_col = rating_col
         self.inverted_index = self._build_inverted_index()
-
-    # ------------------------------------------------------------------ #
 
     def _build_inverted_index(self):
         print("Building keyword inverted index...")
