@@ -582,7 +582,7 @@ def calculate_relevance(df, doc_ids, query, strategy,
 
             print(f"\n[{i+1}/{actual_sample_size}] review_id = {review_id}")
             print("-" * 40)
-            print(str(review_text)[:800])  # truncate so terminal doesn't explode
+            print(str(review_text)[:2000])  # truncate so terminal doesn't explode
             print("\n" + "-" * 40)
 
             while True:
@@ -637,7 +637,7 @@ def compare_strategies(keyword_engine,
       - auto_mode=False: manual y/n labeling (interactive)
     """
 
-    print(f"\n\n=== Comparison of Strategies (Baseline, Method 1, Method 2) ===")
+    print(f"\n\n=== Comparison of Strategies (Baseline, Method 1 (Boolean + Rating), Method 2 (Fuzzy + Rating + Text Scoring)) ===")
 
     for q in queries:
         print(f"\n\nQUERY: {q}")

@@ -8,7 +8,7 @@ __pycache__/
 .venv/
 venv/
 
-# Data (keep processed small stuff if you want)
+# Data
 data/
 logs/
 *.pkl

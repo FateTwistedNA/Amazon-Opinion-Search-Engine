@@ -180,7 +180,7 @@ class AdvancedOpinionSearch:
         Test 4 retrieval:
           - Require aspect AND opinion match (like Test 2)
           - Optionally expand terms with fuzzy matching
-          - Optionally require aspect & opinion in the *same sentence*
+          - Optionally require aspect & opinion in the same sentence
           - Optionally filter docs by rating polarity vs query polarity
         """
         # 1) Parse query into stemmed aspect / opinion terms

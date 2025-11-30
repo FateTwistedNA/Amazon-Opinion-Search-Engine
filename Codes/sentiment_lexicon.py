@@ -20,26 +20,35 @@ class SentimentLexicon:
             'perfect', 'outstanding', 'superb', 'brilliant', 'magnificent', 'marvelous',
             'terrific', 'fabulous', 'impressive', 'remarkable', 'exceptional', 'incredible',
             'beautiful', 'lovely', 'nice', 'pleasant', 'delightful', 'charming', 'attractive',
-            'enjoyable', 'satisfying', 'pleasing', 'awesome', 'cool', 'sweet', 'favorite',
-            'love', 'loved', 'like', 'liked', 'helpful', 'useful', 'reliable',
-            'fast', 'quick', 'responsive', 'smooth', 'easy', 'simple',
-            'sharp', 'clear', 'crisp', 'bright', 'vivid', 'rich',
-            'sturdy', 'solid', 'durable', 'comfortable', 'quiet',
-            'powerful', 'strong', 'stable', 'intuitive', 'convenient',
-            'affordable', 'worthwhile', 'valuable', 'efficient',
+            'fine', 'solid', 'reliable', 'dependable', 'trustworthy', 'quality', 'premium',
+            'superior', 'best', 'top', 'first-class', 'high-quality', 'well-made',
+            'strong', 'powerful', 'effective', 'efficient', 'fast', 'quick', 'speedy',
+            'smooth', 'easy', 'simple', 'convenient', 'comfortable', 'cozy', 'relaxing',
+            'satisfying', 'pleased', 'happy', 'satisfied', 'content', 'delighted', 'thrilled',
+            'love', 'like', 'enjoy', 'appreciate', 'recommend', 'useful', 'helpful',
+            'valuable', 'worthwhile', 'beneficial', 'advantageous', 'clear', 'sharp',
+            'bright', 'vivid', 'crisp', 'clean', 'fresh', 'new', 'modern', 'stylish',
+            'elegant', 'sleek', 'compact', 'portable', 'lightweight', 'durable', 'sturdy'
         }
 
         # --- Negative opinion words ---
         self.negative_words = {
             'bad', 'terrible', 'awful', 'horrible', 'disgusting', 'pathetic', 'useless',
-            'poor', 'worst', 'disappointing', 'frustrating', 'annoying', 'irritating',
-            'inferior', 'substandard', 'mediocre', 'inadequate', 'insufficient',
-            'unacceptable', 'unreliable', 'broken', 'defective', 'flimsy',
-            'noisy', 'loud', 'weak', 'slow', 'sluggish', 'laggy',
-            'buggy', 'glitchy', 'confusing', 'complicated', 'unclear',
-            'uncomfortable', 'cheap', 'cheesy', 'crappy', 'junk',
-            'blurry', 'fuzzy', 'dim', 'dull', 'muted', 'distorted',
-            'expensive', 'overpriced', 'waste', 'wasted', 'wasting',
+            'worthless', 'disappointing', 'frustrating', 'annoying', 'irritating', 'infuriating',
+            'poor', 'inferior', 'substandard', 'mediocre', 'inadequate', 'insufficient',
+            'defective', 'faulty', 'broken', 'damaged', 'flawed', 'imperfect', 'problematic',
+            'unreliable', 'unstable', 'inconsistent', 'unpredictable', 'buggy', 'glitchy',
+            'slow', 'sluggish', 'laggy', 'delayed', 'unresponsive', 'frozen', 'stuck',
+            'difficult', 'hard', 'complicated', 'complex', 'confusing', 'unclear', 'ambiguous',
+            'uncomfortable', 'inconvenient', 'awkward', 'clumsy', 'bulky', 'heavy', 'loud',
+            'noisy', 'harsh', 'rough', 'cheap', 'flimsy', 'fragile', 'weak', 'thin',
+            'small', 'tiny', 'limited', 'restricted', 'narrow', 'short', 'brief', 'quick',
+            'waste', 'money', 'time', 'effort', 'regret', 'mistake', 'error', 'fail',
+            'failure', 'disaster', 'nightmare', 'mess', 'junk', 'garbage', 'trash',
+            'hate', 'dislike', 'avoid', 'skip', 'ignore', 'return', 'refund', 'replace',
+            'issues', 'problems', 'troubles', 'difficulties', 'challenges', 'concerns',
+            'complaints', 'criticisms', 'faults', 'drawbacks', 'disadvantages', 'downsides',
+            'blur', 'blurry', 'fuzzy', 'dim', 'dark', 'faded', 'dull', 'muted', 'distorted'
         }
     # Treat emoticon placeholders as sentiment words
         self.positive_words.add("positive_opinion")
